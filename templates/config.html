@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration{% endblock %}
+
+{% block content %}
+<h1>Configuration</h1>
+
+<!-- Menu de sélection -->
+<div class="menu">
+    <button class="menu-button" onclick="showForm('capteurForm')">Ajouter un Capteur</button>
+    <button class="menu-button" onclick="showForm('pieceForm')">Ajouter une Pièce</button>
+    <button class="menu-button" onclick="showForm('logementForm')">Ajouter un Logement</button>
+</div>
+
+<!-- Formulaire pour ajouter un capteur -->
+<div id="capteurForm" class="form-container" style="display:none;">
+    <h2>Ajouter un Capteur</h2>
+    <form action="/add_capteur" method="post">
+        <div class="form-group">
+            <label for="ref_commerciale">Référence Commerciale</label>
+            <input type="text" class="form-control" id="ref_commerciale" name="ref_commerciale" required>
+        </div>
+        <div class="form-group">
+            <label for="port_communication">Port de Communication</label>
+            <input type="text" class="form-control" id="port_communication" name="port_communication" required>
+        </div>
+        <div class="form-group">
+            <label for="type_capteur">Type de Capteur</label>
+            <select class="form-control" id="type_capteur" name="type_capteur" required>
+                <option value="1">Température</option>
+                <option value="2">Humidité</option>
+                <option value="3">Luminosité</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter Capteur</button>
+    </form>
+</div>
+
+<!-- Formulaire pour ajouter une pièce -->
+<div id="pieceForm" class="form-container" style="display:none;">
+    <h2>Ajouter une Pièce</h2>
+    <form action="/ajouter_piece" method="post">
+        <label for="nom_piece">Nom de la pièce:</label>
+        <input type="text" id="nom_piece" name="nom_piece" required><br>
+
+        <label for="x">Coordonnée X:</label>
+        <input type="number" id="x" name="x" step="any" required><br>
+
+        <label for="y">Coordonnée Y:</label>
+        <input type="number" id="y" name="y" step="any" required><br>
+
+        <label for="z">Coordonnée Z:</label>
+        <input type="number" id="z" name="z" step="any" required><br>
+
+        <label for="logement">Logement:</label>
+        <select id="logement" name="logement" required>
+            {% for logement in logements %}
+                <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Ajouter la pièce">
+    </form>
+</div>
+
+<!-- Formulaire pour ajouter un logement -->
+<div id="logementForm" class="form-container" style="display:none;">
+    <h2>Ajouter un Logement</h2>
+    <form action="/ajouter_logement" method="post">
+        <label for="adresse">Adresse:</label>
+        <input type="text" id="adresse" name="adresse" required><br>
+
+        <label for="numero_tel">Numéro Tel:</label>
+        <input type="text" id="numero_tel" name="numero_tel" required><br>
+
+        <label for="IP">Adresse IP:</label>
+        <input type="text" id="IP" name="IP" required><br>
+
+        <label for="date_insert">Date d'insertion:</label>
+        <input type="text" id="date_insert" name="date_insert" required><br>
+
+        <input type="submit" value="Ajouter le logement">
+    </form>
+</div>
+
+<h2>Capteurs Ajoutés</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Type de Capteur</th>
+            <th>Date d'Insertion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for capteur in capteurs %}
+        <tr>
+            <td>{{ capteur.ref_commerciale }}</td>
+            <td>{{ capteur.port_communication }}</td>
+            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+.menu {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.menu-button {
+    background-color: #006400; /* Dark green */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+}
+
+.menu-button:hover {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-container {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background-color: #006400; /* Dark green */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+</style>
+
+<script>
+function showForm(formId) {
+    // Hide all forms
+    document.getElementById('capteurForm').style.display = 'none';
+    document.getElementById('pieceForm').style.display = 'none';
+    document.getElementById('logementForm').style.display = 'none';
+
+    // Show the selected form
+    document.getElementById(formId).style.display = 'block';
+}
+</script>
+
+{% endblock %}

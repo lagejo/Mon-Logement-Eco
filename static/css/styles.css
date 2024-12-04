@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+main {
+    padding: 2em;
+    text-align: center;
+}
+
+.custom-navbar {
+    background-color: #4CAF50; /* Changez cette couleur selon vos besoins */
+}
+
+.custom-navbar .nav-link {
+    color: white; /* Assurez-vous que le texte est visible sur la nouvelle couleur de fond */
+}
+
+.custom-navbar .navbar-brand {
+    color: white; /* Assurez-vous que le texte est visible sur la nouvelle couleur de fond */
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1); /* Optionnel : personnaliser la couleur de la bordure du bouton burger */
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    /* Optionnel : personnaliser l'icône du bouton burger */
+}
+

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}economie{% endblock %}
+
+{% block content %}
+<h1>Economie</h1>
+<div id="piechart" style="width: 100%; height: 500px;"></div>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Type', 'Montant'],
+            {% for label, value in zip(labels, data) %}
+                ['{{ label }}', {{ value }}],
+            {% endfor %}
+        ]);
+
+        var options = {
+            title: 'Factures',
+            width: '100%',
+            height: 500
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+    }
+</script>
+{% endblock %}
