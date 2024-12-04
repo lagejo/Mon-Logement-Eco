@@ -122,11 +122,25 @@ async def read_root(request: Request):
 async def read_consommation(request: Request):
     return templates.TemplateResponse("consommation.html", {"request": request})
 
+def get_pieces_with_logement():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("""
+        SELECT Piece.nom, Piece.x, Piece.y, Piece.z, Logement.adresse AS logement_adresse
+        FROM Piece
+        JOIN Logement ON Piece.id_loge = Logement.id_loge
+    """)
+    pieces = c.fetchall()
+    conn.close()
+    return pieces
+
 @app.get("/config", response_class=HTMLResponse)
 async def read_config(request: Request):
     capteurs = get_capteurs()
     logements = get_logements()
-    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements})
+    pieces = get_pieces_with_logement()
+    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces})
 
 @app.get("/economie", response_class=HTMLResponse)
 async def afficher_economie(request: Request):

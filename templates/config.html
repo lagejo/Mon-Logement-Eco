@@ -98,23 +98,23 @@
     </form>
 </div>
 
-<h2>Capteurs Ajoutés</h2>
+<h2>Logements Ajoutés</h2>
 <table class="table">
     <thead>
         <tr>
-            <th>Référence Commerciale</th>
-            <th>Port de Communication</th>
-            <th>Type de Capteur</th>
+            <th>Adresse</th>
+            <th>Numéro Tel</th>
+            <th>Adresse IP</th>
             <th>Date d'Insertion</th>
         </tr>
     </thead>
     <tbody>
-        {% for capteur in capteurs %}
+        {% for logement in logements %}
         <tr>
-            <td>{{ capteur.ref_commerciale }}</td>
-            <td>{{ capteur.port_communication }}</td>
-            <td>{{ capteur.unite_mesure }}</td>
-            <td>{{ capteur.date_insert }}</td>
+            <td>{{ logement.adresse }}</td>
+            <td>{{ logement.numero_tel }}</td>
+            <td>{{ logement.IP }}</td>
+            <td>{{ logement.date_insert }}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -124,25 +124,27 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Référence Commerciale</th>
-            <th>Port de Communication</th>
-            <th>Type de Capteur</th>
-            <th>Date d'Insertion</th>
+            <th>Nom</th>
+            <th>Coordonnée X</th>
+            <th>Coordonnée Y</th>
+            <th>Coordonnée Z</th>
+            <th>Logement</th>
         </tr>
     </thead>
     <tbody>
-        {% for capteur in capteurs %}
+        {% for piece in pieces %}
         <tr>
-            <td>{{ capteur.ref_commerciale }}</td>
-            <td>{{ capteur.port_communication }}</td>
-            <td>{{ capteur.unite_mesure }}</td>
-            <td>{{ capteur.date_insert }}</td>
+            <td>{{ piece.nom }}</td>
+            <td>{{ piece.x }}</td>
+            <td>{{ piece.y }}</td>
+            <td>{{ piece.z }}</td>
+            <td>{{ piece.logement_adresse }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<h2>Logements Ajoutés</h2>
+<h2>Capteurs Ajoutés</h2>
 <table class="table">
     <thead>
         <tr>
