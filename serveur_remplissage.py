@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request, HTTPException, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, Request, HTTPException, Form, Query
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -88,13 +88,13 @@ def remove_duplicate_capteurs():
         conn.close()
 
 @app.post("/add_capteur")
-async def add_capteur(ref_commerciale: str = Form(...), port_communication: str = Form(...), type_capteur: int = Form(...)):
+async def add_capteur(ref_commerciale: str = Form(...), port_communication: str = Form(...), type_capteur: int = Form(...), piece: int = Form(...)):
     conn = sqlite3.connect('logement.db')
     c = conn.cursor()
-    date_insert = "2024-12-02"
+    date_insert = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     try:
-        c.execute("INSERT INTO Capteur (ref_commerciale, port_communication, date_insert, id_type) VALUES (?, ?, ?, ?)",
-                  (ref_commerciale, port_communication, date_insert, type_capteur))
+        c.execute("INSERT INTO Capteur (ref_commerciale, port_communication, date_insert, id_type, id_piece) VALUES (?, ?, ?, ?, ?)",
+                  (ref_commerciale, port_communication, date_insert, type_capteur, piece))
         conn.commit()
         remove_duplicate_capteurs()
     except sqlite3.Error as e:
@@ -149,6 +149,16 @@ def get_logements():
     logements = c.fetchall()
     conn.close()
     return logements
+
+@app.get("/get_pieces")
+async def get_pieces(logement_id: int = Query(...)):
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT id_piece, nom FROM Piece WHERE id_loge = ?", (logement_id,))
+    pieces = c.fetchall()
+    conn.close()
+    return JSONResponse(content={"pieces": [dict(piece) for piece in pieces]})
 
 @app.post("/ajouter_piece")
 async def ajouter_piece(nom_piece: str = Form(...), x: float = Form(...), y: float = Form(...), z: float = Form(...), logement: int = Form(...)):

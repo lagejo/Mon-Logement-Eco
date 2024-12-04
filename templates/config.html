@@ -17,6 +17,21 @@
     <h2>Ajouter un Capteur</h2>
     <form action="/add_capteur" method="post">
         <div class="form-group">
+            <label for="logement">Logement</label>
+            <select class="form-control" id="logement" name="logement" required onchange="loadPieces(this.value)">
+                <option value="">Sélectionner un logement</option>
+                {% for logement in logements %}
+                    <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="piece">Pièce</label>
+            <select class="form-control" id="piece" name="piece" required>
+                <option value="">Sélectionner une pièce</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label for="ref_commerciale">Référence Commerciale</label>
             <input type="text" class="form-control" id="ref_commerciale" name="ref_commerciale" required>
         </div>
@@ -105,6 +120,50 @@
     </tbody>
 </table>
 
+<h2>Pièces Ajoutées</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Type de Capteur</th>
+            <th>Date d'Insertion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for capteur in capteurs %}
+        <tr>
+            <td>{{ capteur.ref_commerciale }}</td>
+            <td>{{ capteur.port_communication }}</td>
+            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Logements Ajoutés</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Type de Capteur</th>
+            <th>Date d'Insertion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for capteur in capteurs %}
+        <tr>
+            <td>{{ capteur.ref_commerciale }}</td>
+            <td>{{ capteur.port_communication }}</td>
+            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <style>
 .menu {
     display: flex;
@@ -167,6 +226,22 @@ function showForm(formId) {
 
     // Show the selected form
     document.getElementById(formId).style.display = 'block';
+}
+
+function loadPieces(logementId) {
+    fetch(`/get_pieces?logement_id=${logementId}`)
+        .then(response => response.json())
+        .then(data => {
+            const pieceSelect = document.getElementById('piece');
+            pieceSelect.innerHTML = '<option value="">Sélectionner une pièce</option>';
+            data.pieces.forEach(piece => {
+                const option = document.createElement('option');
+                option.value = piece.id_piece;
+                option.textContent = piece.nom;
+                pieceSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error:', error));
 }
 </script>
 
