@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Eco{% endblock %}
+
+{% block content %}
+<h1>Economies réalisées</h1>
+<p>This is the content of Consommation.</p>
+
+<button class="menu-button" onclick="showForm('factureForm')">Ajouter une Facture</button>
+
+<div id="factureForm" class="form-container" style="display:none;">
+    <h2>Ajouter une facture</h2>
+    <form action="/ajouter_facture" method="post">
+        <label for="type_facture">Type de facture:</label>
+        <input type="text" id="type_facture" name="type_facture" required><br>
+
+        <label for="x">Montant :</label>
+        <input type="number" id="montant" name="montant" step="any" required><br>
+
+        <label for="valeur_conso">Valeur consommée :</label>
+        <input type="number" id="valeur_conso" name="valeur_conso" step="any" required><br>
+
+        <label for="date_fact">Date facture :</label>
+        <input type="number" id="date_fact" name="date_fact" step="any" required><br>
+
+        <label for="logement">Logement:</label>
+        <select id="logement" name="logement" required>
+            {% for logement in logements %}
+                <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Ajouter la facture">
+    </form>
+</div>
+
+<script>
+    function showForm(formId) {
+
+    // Show the selected form
+    document.getElementById('logementForm').style.display = 'block';
+    }
+</script>
+
+<style>
+    
+    .menu-button {
+        background-color: #006400; /* Dark green */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: box-shadow 0.3s ease;
+    }
+</style>
+
+{% endblock %}

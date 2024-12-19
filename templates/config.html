@@ -5,14 +5,13 @@
 {% block content %}
 <h1>Configuration</h1>
 
-<!-- Menu de sélection -->
 <div class="menu">
     <button class="menu-button" onclick="showForm('capteurForm')">Ajouter un Capteur</button>
     <button class="menu-button" onclick="showForm('pieceForm')">Ajouter une Pièce</button>
     <button class="menu-button" onclick="showForm('logementForm')">Ajouter un Logement</button>
+    <button class="menu-button" onclick="showForm('suppressionForm')">Supprimer</button>
 </div>
 
-<!-- Formulaire pour ajouter un capteur -->
 <div id="capteurForm" class="form-container" style="display:none;">
     <h2>Ajouter un Capteur</h2>
     <form action="/add_capteur" method="post">
@@ -51,7 +50,6 @@
     </form>
 </div>
 
-<!-- Formulaire pour ajouter une pièce -->
 <div id="pieceForm" class="form-container" style="display:none;">
     <h2>Ajouter une Pièce</h2>
     <form action="/ajouter_piece" method="post">
@@ -69,6 +67,7 @@
 
         <label for="logement">Logement:</label>
         <select id="logement" name="logement" required>
+            <option value="">Sélectionner un logement</option>
             {% for logement in logements %}
                 <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
             {% endfor %}
@@ -78,7 +77,6 @@
     </form>
 </div>
 
-<!-- Formulaire pour ajouter un logement -->
 <div id="logementForm" class="form-container" style="display:none;">
     <h2>Ajouter un Logement</h2>
     <form action="/ajouter_logement" method="post">
@@ -95,6 +93,40 @@
         <input type="text" id="date_insert" name="date_insert" required><br>
 
         <input type="submit" value="Ajouter le logement">
+    </form>
+</div>
+
+<div id="suppressionForm" class="form-container" style="display:none;">
+    <h2>Supprimer</h2>
+    <form action="/supprimer_logement" method="post">
+        <label for="logement">Logement:</label>
+        <select id="logement" name="logement" required>
+            <option value="">Sélectionner un logement</option>
+            {% for logement in logements %}
+                <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Supprimer Logement</button>
+    </form>
+    <form action="/supprimer_piece" method="post">
+        <label for="piece">Pièce:</label>
+        <select id="piece" name="piece" required>
+            <option value="">Sélectionner une pièce</option>
+            {% for piece in pieces %}
+                <option value="{{ piece.id_piece }}">{{ piece.nom }} - {{ piece.logement_adresse }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Supprimer Pièce</button>
+    </form>
+    <form action="/supprimer_capteur" method="post">
+        <label for="capteur">Capteur:</label>
+        <select id="capteur" name="capteur" required>
+            <option value="">Sélectionner un capteur</option>
+            {% for capteur in capteurs %}
+                <option value="{{ capteur.id_capteur }}">{{ capteur.ref_commerciale }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Supprimer Capteur</button>
     </form>
 </div>
 
@@ -220,15 +252,15 @@
 </style>
 
 <script>
-function showForm(formId) {
-    // Hide all forms
-    document.getElementById('capteurForm').style.display = 'none';
-    document.getElementById('pieceForm').style.display = 'none';
-    document.getElementById('logementForm').style.display = 'none';
+// function showForm(formId) {
+//     // Hide all forms
+//     document.getElementById('capteurForm').style.display = 'none';
+//     document.getElementById('pieceForm').style.display = 'none';
+//     document.getElementById('logementForm').style.display = 'none';
 
-    // Show the selected form
-    document.getElementById(formId).style.display = 'block';
-}
+//     // Show the selected form
+//     document.getElementById(formId).style.display = 'block';
+// }
 
 function loadPieces(logementId) {
     fetch(`/get_pieces?logement_id=${logementId}`)
