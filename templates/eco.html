@@ -4,7 +4,6 @@
 
 {% block content %}
 <h1>Economies réalisées</h1>
-<p>This is the content of Consommation.</p>
 
 <button class="menu-button" onclick="showForm('factureForm')">Ajouter une Facture</button>
 
@@ -14,14 +13,14 @@
         <label for="type_facture">Type de facture:</label>
         <input type="text" id="type_facture" name="type_facture" required><br>
 
-        <label for="x">Montant :</label>
+        <label for="montant">Montant :</label>
         <input type="number" id="montant" name="montant" step="any" required><br>
 
         <label for="valeur_conso">Valeur consommée :</label>
         <input type="number" id="valeur_conso" name="valeur_conso" step="any" required><br>
 
         <label for="date_fact">Date facture :</label>
-        <input type="number" id="date_fact" name="date_fact" step="any" required><br>
+        <input type="date" id="date_fact" name="date_fact" required><br>
 
         <label for="logement">Logement:</label>
         <select id="logement" name="logement" required>
@@ -34,16 +33,33 @@
     </form>
 </div>
 
-<script>
-    function showForm(formId) {
+<div class="form-group">
+    <label for="logementSelect">Sélectionner un logement:</label>
+    <select class="form-control" id="logementSelect" name="logementSelect" onchange="loadFactureTypes(this.value)">
+        <option value="">Sélectionner un logement</option>
+        {% for logement in logements %}
+            <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+        {% endfor %}
+    </select>
+</div>
 
-    // Show the selected form
-    document.getElementById('logementForm').style.display = 'block';
-    }
-</script>
+<div class="form-group" id="factureTypeContainer" style="display:none;">
+    <label for="factureTypeSelect">Sélectionner un type de facture:</label>
+    <select class="form-control" id="factureTypeSelect" name="factureTypeSelect" onchange="loadGraph(this.value)">
+        <option value="">Sélectionner un type de facture</option>
+        <!-- Les options seront ajoutées dynamiquement par JavaScript -->
+    </select>
+</div>
+
+<div id="graphContainer" style="display:none;">
+    <h2>Graphique de l'évolution du montant</h2>
+    <canvas id="graphMontant" style="width: 100%; height: 400px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/factures.js"></script>
 
 <style>
-    
     .menu-button {
         background-color: #006400; /* Dark green */
         color: white;

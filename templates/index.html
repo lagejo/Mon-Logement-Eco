@@ -7,4 +7,31 @@
     <h1 class="display-4">Bienvenue dans votre site de gestion !</h1>
     <p class="lead">Page d'acceuil</p>
 </div>
+<h2>Prévisions Météo</h2>
+<div id="weather-forecast">
+    {% if weather_forecast %}
+        {% for forecast in weather_forecast.list[:5] %}
+            <div class="weather-item">
+                <p><strong>{{ forecast.dt_txt }}</strong></p>
+                <p>Température : {{ forecast.main.temp }}°C</p>
+                <p>Humidité : {{ forecast.main.humidity }}%</p>
+                <p>Conditions : {{ forecast.weather[0].description }}</p>
+                <img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}@2x.png" alt="Weather icon">
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Les données météo ne sont pas disponibles pour le moment.</p>
+    {% endif %}
+</div>
+
+<style>
+    .weather-item {
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin: 5px;
+        display: inline-block;
+        text-align: center;
+    }
+</style>
+
 {% endblock %}

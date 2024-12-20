@@ -5,6 +5,9 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import sqlite3
 from datetime import datetime
+import logging
+import requests
+
 
 app = FastAPI()
 
@@ -60,9 +63,10 @@ def get_capteurs():
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("""
-        SELECT Capteur.id_capteur, Capteur.ref_commerciale, Capteur.port_communication, Capteur.date_insert, Type_capteur.unite_mesure
+        SELECT Capteur.*, Piece.nom AS piece_nom, Logement.adresse AS logement_adresse
         FROM Capteur
-        JOIN Type_capteur ON Capteur.id_type = Type_capteur.id_type
+        JOIN Piece ON Capteur.id_piece = Piece.id_piece
+        JOIN Logement ON Piece.id_loge = Logement.id_loge
     """)
     capteurs = c.fetchall()
     conn.close()
@@ -96,7 +100,8 @@ async def read_etat_capteur(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    weather_forecast = get_weather_forecast()
+    return templates.TemplateResponse("index.html", {"request": request, "weather_forecast": weather_forecast})
 
 @app.get("/economie", response_class=HTMLResponse)
 async def read_consommation(request: Request):
@@ -112,6 +117,15 @@ def get_pieces_with_logement():
         FROM Piece
         JOIN Logement ON Piece.id_loge = Logement.id_loge
     """)
+    pieces = c.fetchall()
+    conn.close()
+    return pieces
+
+def get_pieces():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM Piece")
     pieces = c.fetchall()
     conn.close()
     return pieces
@@ -249,6 +263,21 @@ async def supprimer_capteur(capteur: int = Form(...)):
     finally:
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
+
+logging.basicConfig(level=logging.INFO)
+
+def get_weather_forecast():
+    api_key = "53eb9e8ea37324aaf87898c6bea832ab"  # Ma clé de l'API (openweathermap)
+    lat = 48.8566  # Latitude Paris
+    lon = 2.3522   # Longitude Paris
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+    response = requests.get(url)
+    if response.status_code == 200:
+        logging.info("Données météo OK")
+        return response.json()
+    else:
+        logging.error(f"Failed : {response.status_code}")
+        return None
 
 if __name__ == "__main__":
     import uvicorn
