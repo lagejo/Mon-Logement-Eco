@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import sqlite3
 from datetime import datetime
+from collections import defaultdict
 from typing import Optional
 from utils import *
 
@@ -103,6 +104,7 @@ async def read_config(request: Request):
     pieces = get_pieces_with_logement()
     return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces})
 
+
 @app.get("/consommation", response_class=HTMLResponse)
 async def afficher_economie(
     request: Request,
@@ -118,11 +120,15 @@ async def afficher_economie(
         selected_id = None
     
     if selected_id:
-        factures = get_factures(selected_id)  
+        factures = get_factures(selected_id)
     
     if factures:
-        labels = [facture['type_facture'] for facture in factures]
-        data = [facture['montant'] for facture in factures]
+        facture_dict = defaultdict(float)
+        for facture in factures:
+            facture_dict[facture['type_facture']] += facture['montant']
+        
+        labels = list(facture_dict.keys())
+        data = list(facture_dict.values())
         total_factures = sum(data)
     else:
         labels = []

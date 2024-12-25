@@ -7,7 +7,7 @@
 
 <form action="/consommation" method="get">
     <select name="logement_id" onchange="this.form.submit()">
-        <option value="">Sélectionner un logement</option>
+        <option value="0" {% if not selected_logement %}selected{% endif %}>Sélectionner un logement</option>
         {% for logement in logements %}
             <option value="{{ logement.id_loge }}" {% if selected_logement and selected_logement == logement.id_loge %}selected{% endif %}>
                 {{ logement.adresse }}
@@ -41,7 +41,7 @@
                 formatter.format(data, 1);
 
                 var options = {
-                    title: 'Graphe des factures',
+                    title: 'Graphe des factures classées par type',
                     width: '100%',
                     height: 500,
                     tooltip: {
@@ -55,9 +55,7 @@
             }
         </script>
     {% else %}
-        <p>Le logement sélectionné n'a pas de factures.</p>
+        <p>Aucune facture trouvée pour ce logement.</p>
     {% endif %}
-{% else %}
-    <p>Veuillez sélectionner un logement pour voir ses factures.</p>
 {% endif %}
 {% endblock %}
