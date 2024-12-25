@@ -63,6 +63,38 @@ async def read_consommation(request: Request):
     logements = get_logements()
     return templates.TemplateResponse("eco.html", {"request": request, "logements": logements})
 
+@app.get("/get_facture_types")
+async def get_facture_types(logement_id: int):
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    
+    c.execute("""
+        SELECT DISTINCT type_facture 
+        FROM Facture 
+        WHERE id_loge = ?
+    """, (logement_id,))
+    
+    types = [row[0] for row in c.fetchall()]
+    conn.close()
+    
+    return {"types": types}
+
+@app.get("/get_facturesjson")
+async def get_facturesjson(facture_type_id: str):
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    c.execute("""
+        SELECT montant, date_fact
+        FROM Facture
+        WHERE type_facture = ?
+    """, (facture_type_id,))
+    rows = c.fetchall()
+    conn.close()
+    
+    return {
+        "montants": [r[0] for r in rows],
+        "dates": [r[1] for r in rows]
+    }
 
 @app.get("/config", response_class=HTMLResponse)
 async def read_config(request: Request):
@@ -86,7 +118,7 @@ async def afficher_economie(
         selected_id = None
     
     if selected_id:
-        factures = get_factures(selected_id)
+        factures = get_factures(selected_id)  
     
     if factures:
         labels = [facture['type_facture'] for facture in factures]
@@ -104,7 +136,7 @@ async def afficher_economie(
         "logements": logements,
         "selected_logement": selected_id,
         "has_factures": bool(factures),
-        "zip": zip
+        "zip": zip  # Add zip function to template context
     })
 
 @app.get("/get_pieces")
@@ -151,17 +183,24 @@ async def ajouter_piece(adresse: str = Form(...), numero_tel: str = Form(...), I
 
 #ajouter une facture, page économie
 @app.post("/ajouter_facture")
-async def ajouter_facture(type_facture: str = Form(...), montant: float = Form(...), valeur_conso: float = Form(...), date_fact: str = Form(...), id_loge: int = Form(...)):
+async def add_facture(
+    type_facture: str = Form(...),
+    montant: float = Form(...),
+    valeur_conso: float = Form(...),
+    date_fact: str = Form(...),
+    id_loge: str = Form(...)
+):
     conn = sqlite3.connect('logement.db')
     c = conn.cursor()
     try:
-        query = '''INSERT INTO Facture (type_facture, montant, valeur_conso, date_fact, id_loge)
-                   VALUES (?, ?, ?, ?, ?)'''
-        c.execute(query, (type_facture, montant, valeur_conso, date_fact, id_loge))
+        c.execute("""
+            INSERT INTO Facture (type_facture, montant, valeur_conso, date_fact, id_loge)
+            VALUES (?, ?, ?, ?, ?)
+        """, (type_facture, montant, valeur_conso, date_fact, id_loge))
         conn.commit()
     except sqlite3.Error as e:
         conn.rollback()
-        raise e
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
     return RedirectResponse(url="/economie", status_code=303)
