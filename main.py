@@ -5,72 +5,26 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import sqlite3
 from datetime import datetime
-import logging
-import requests
-
+from typing import Optional
+from utils import *
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-class SensorData(BaseModel):
+class Data_capteur(BaseModel):
     temperature: float
     humidity: float
 
-def save_sensor_data(temperature: float, humidity: float):
-    conn = sqlite3.connect('logement.db')
-    c = conn.cursor()
-    date_today = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+@app.post("/capteur")
+async def receive_capteur(data: Data_capteur):
     try:
-        c.execute("INSERT INTO Mesure (valeur, date_insert, id_capteur) VALUES (?, ?, ?)", (temperature, date_today, 1))
-        c.execute("INSERT INTO Mesure (valeur, date_insert, id_capteur) VALUES (?, ?, ?)", (humidity, date_today, 2))
-        conn.commit()
-    except sqlite3.Error as e:
-        conn.rollback()
-        raise e
-    finally:
-        conn.close()
-
-@app.post("/sensor")
-async def receive_sensor_data(data: SensorData):
-    try:
-        save_sensor_data(data.temperature, data.humidity)
-        return {"message": "Sensor data received successfully"}
+        save_capteur_data(data.temperature, data.humidity)
+        return {"message": "Données du capteur bien reçues"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-def get_factures():
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT type_facture, montant FROM Facture")
-    factures = c.fetchall()
-    conn.close()
-    return factures
-
-def get_sensor_data(id_capteur: int):
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT valeur, date_insert FROM Mesure WHERE id_capteur = ? ORDER BY date_insert DESC LIMIT 5", (id_capteur,))
-    data = c.fetchall()
-    conn.close()
-    return data
-
-def get_capteurs():
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("""
-        SELECT Capteur.*, Piece.nom AS piece_nom, Logement.adresse AS logement_adresse
-        FROM Capteur
-        JOIN Piece ON Capteur.id_piece = Piece.id_piece
-        JOIN Logement ON Piece.id_loge = Logement.id_loge
-    """)
-    capteurs = c.fetchall()
-    conn.close()
-    return capteurs
+    
 
 @app.post("/add_capteur")
 async def add_capteur(ref_commerciale: str = Form(...), port_communication: str = Form(...), type_capteur: int = Form(...), piece: int = Form(...)):
@@ -88,10 +42,11 @@ async def add_capteur(ref_commerciale: str = Form(...), port_communication: str 
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
 
+
 @app.get("/etatcapteur", response_class=HTMLResponse)
 async def read_etat_capteur(request: Request):
-    temperature_data = get_sensor_data(1)
-    humidity_data = get_sensor_data(2)
+    temperature_data = get_capteur_data(1)
+    humidity_data = get_capteur_data(2)
     return templates.TemplateResponse("etat_capteur.html", {
         "request": request,
         "temperature_data": temperature_data,
@@ -100,35 +55,13 @@ async def read_etat_capteur(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    weather_forecast = get_weather_forecast()
+    weather_forecast = get_meteo()
     return templates.TemplateResponse("index.html", {"request": request, "weather_forecast": weather_forecast})
 
 @app.get("/economie", response_class=HTMLResponse)
 async def read_consommation(request: Request):
     logements = get_logements()
     return templates.TemplateResponse("eco.html", {"request": request, "logements": logements})
-
-def get_pieces_with_logement():
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("""
-        SELECT Piece.id_piece, Piece.nom, Piece.x, Piece.y, Piece.z, Logement.adresse AS logement_adresse
-        FROM Piece
-        JOIN Logement ON Piece.id_loge = Logement.id_loge
-    """)
-    pieces = c.fetchall()
-    conn.close()
-    return pieces
-
-def get_pieces():
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM Piece")
-    pieces = c.fetchall()
-    conn.close()
-    return pieces
 
 
 @app.get("/config", response_class=HTMLResponse)
@@ -139,26 +72,40 @@ async def read_config(request: Request):
     return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces})
 
 @app.get("/consommation", response_class=HTMLResponse)
-async def afficher_economie(request: Request):
-    factures = get_factures()
-    labels = [facture['type_facture'] for facture in factures]
-    data = [facture['montant'] for facture in factures]
+async def afficher_economie(
+    request: Request,
+    logement_id: Optional[str] = None
+):
+    logements = get_logements()
+    factures = []
+    total_factures = 0
+    
+    try:
+        selected_id = int(logement_id) if logement_id else None
+    except ValueError:
+        selected_id = None
+    
+    if selected_id:
+        factures = get_factures(selected_id)
+    
+    if factures:
+        labels = [facture['type_facture'] for facture in factures]
+        data = [facture['montant'] for facture in factures]
+        total_factures = sum(data)
+    else:
+        labels = []
+        data = []
 
     return templates.TemplateResponse("conso.html", {
         "request": request,
         "labels": labels,
         "data": data,
-        "zip": zip  # Passer la fonction zip au contexte
+        "total_factures": total_factures,
+        "logements": logements,
+        "selected_logement": selected_id,
+        "has_factures": bool(factures),
+        "zip": zip
     })
-
-def get_logements():
-    conn = sqlite3.connect('logement.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM Logement")
-    logements = c.fetchall()
-    conn.close()
-    return logements
 
 @app.get("/get_pieces")
 async def get_pieces(logement_id: int = Query(...)):
@@ -264,23 +211,9 @@ async def supprimer_capteur(capteur: int = Form(...)):
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
 
-logging.basicConfig(level=logging.INFO)
-
-def get_weather_forecast():
-    api_key = "53eb9e8ea37324aaf87898c6bea832ab"  # Ma clé de l'API (openweathermap)
-    lat = 48.8566  # Latitude Paris
-    lon = 2.3522   # Longitude Paris
-    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric"
-    response = requests.get(url)
-    if response.status_code == 200:
-        logging.info("Données météo OK")
-        return response.json()
-    else:
-        logging.error(f"Failed : {response.status_code}")
-        return None
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
 
-    #bash : uvicorn serveur_remplissage:app --reload --host 0.0.0.0 --port 8000
+    #bash : uvicorn main:app --reload --host 127.0.0.1 --port 8000 ou fastapi run main.py

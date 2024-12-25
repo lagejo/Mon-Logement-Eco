@@ -12,7 +12,7 @@ DHT dht(DHTPIN, DHTTYPE);
 const char* ssid = "Redmi Note 12 Pro";
 const char* password = "spaghetti";
 // Adresse IP locale de votre ordinateur sur le réseau
-String serverName = "http://192.168.217.77:8000/sensor"; // Remplacez par l'adresse IP locale de votre ordinateur
+String serverName = "http://192.168.217.77:8000/capteur"; // Remplacez par l'adresse IP locale de votre ordinateur
 
 // Variables d'enregistrement de la position dans le temps et du délai d'exécution du code
 unsigned long lastTime = 0;
@@ -54,7 +54,7 @@ void sendPostRequest() {
   float temperature = dht.readTemperature();
 
   if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
+    Serial.println("Failed to read from DHT capteur!");
     return;
   }
 
