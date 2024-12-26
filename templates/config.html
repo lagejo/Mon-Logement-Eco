@@ -7,6 +7,7 @@
 
 <div class="menu">
     <button class="menu-button" onclick="showForm('capteurForm')">Ajouter un Capteur</button>
+    <button class="menu-button" onclick="showForm('typeForm')">Ajouter un type de Capteur</button>
     <button class="menu-button" onclick="showForm('pieceForm')">Ajouter une Pièce</button>
     <button class="menu-button" onclick="showForm('logementForm')">Ajouter un Logement</button>
     <button class="menu-button" onclick="showForm('suppressionForm')">Supprimer</button>
@@ -41,9 +42,9 @@
         <div class="form-group">
             <label for="type_capteur">Type de Capteur</label>
             <select class="form-control" id="type_capteur" name="type_capteur" required>
-                <option value="1">Température</option>
-                <option value="2">Humidité</option>
-                <option value="3">Luminosité</option>
+                {% for type_capteur in types_capteurs %}
+                    <option value="{{ type_capteur.id_type }}">{{ type_capteur.unite_mesure }}</option>
+                {% endfor %}
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Ajouter Capteur</button>
@@ -96,6 +97,16 @@
     </form>
 </div>
 
+<div id="typeForm" class="form-container" style="display:none;">
+    <h2>Ajouter un Type de Capteur</h2>
+    <form action="/ajouter_type_capteur" method="post">
+        <label for="type_capteur">Grandeur Mesurée:</label>
+        <input type="text" id="unite_mesure" name="unite_mesure" required><br>
+
+        <input type="submit" value="Ajouter le type de capteur">
+    </form>
+</div>
+
 <div id="suppressionForm" class="form-container" style="display:none;">
     <h2>Supprimer</h2>
     <form action="/supprimer_logement" method="post">
@@ -128,9 +139,19 @@
         </select>
         <button type="submit" class="btn btn-danger">Supprimer Capteur</button>
     </form>
+    <form action="/supprimer_type_capteur" method="post">
+        <label for="type_capteur">Type Capteur:</label>
+        <select id="type_capteur" name="type_capteur" required>
+            <option value="">Sélectionner un type de capteur</option>
+            {% for type_capteur in types_capteurs %}
+                <option value="{{ type_capteur.id_type }}">{{ type_capteur.unite_mesure }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Supprimer Type de Capteur</button>
+    </form>
 </div>
 
-<h2>Logements Ajoutés</h2>
+<h2>Logements</h2>
 <table class="table">
     <thead>
         <tr>
@@ -152,7 +173,7 @@
     </tbody>
 </table>
 
-<h2>Pièces Ajoutées</h2>
+<h2>Pièces</h2>
 <table class="table">
     <thead>
         <tr>
@@ -176,13 +197,14 @@
     </tbody>
 </table>
 
-<h2>Capteurs Ajoutés</h2>
+<h2>Capteurs</h2>
 <table class="table">
     <thead>
         <tr>
             <th>Référence Commerciale</th>
             <th>Port de Communication</th>
             <th>Type de Capteur</th>
+            <th>Logement - Pièce</th>
             <th>Date d'Insertion</th>
         </tr>
     </thead>
@@ -191,8 +213,25 @@
         <tr>
             <td>{{ capteur.ref_commerciale }}</td>
             <td>{{ capteur.port_communication }}</td>
-            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.type_capteur_nom }}</td>
+            <td>{{ capteur.logement_adresse }} - {{ capteur.piece_nom }}</td>
             <td>{{ capteur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Types de Capteurs</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grandeur mesurée</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for type_capteur in types_capteurs %}
+        <tr>
+            <td>{{ type_capteur.unite_mesure }}</td>
         </tr>
         {% endfor %}
     </tbody>

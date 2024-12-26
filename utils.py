@@ -45,14 +45,24 @@ def get_capteurs():
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("""
-        SELECT Capteur.*, Piece.nom AS piece_nom, Logement.adresse AS logement_adresse
+        SELECT Capteur.*, Piece.nom AS piece_nom, Logement.adresse AS logement_adresse, Type_capteur.unite_mesure AS type_capteur_nom
         FROM Capteur
         JOIN Piece ON Capteur.id_piece = Piece.id_piece
         JOIN Logement ON Piece.id_loge = Logement.id_loge
+        JOIN Type_capteur ON Capteur.id_type = Type_capteur.id_type
     """)
     capteurs = c.fetchall()
     conn.close()
     return capteurs
+
+def get_types_capteurs():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT id_type, unite_mesure FROM Type_capteur")
+    types_capteurs = c.fetchall()
+    conn.close()
+    return types_capteurs
 
 def get_pieces_with_logement():
     conn = sqlite3.connect('logement.db')

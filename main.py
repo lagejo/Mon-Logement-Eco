@@ -43,11 +43,28 @@ async def add_capteur(ref_commerciale: str = Form(...), port_communication: str 
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
 
+@app.post("/ajouter_type_capteur")
+async def ajouter_type_capteur(unite_mesure: str = Form(...)):
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    try:
+        query = '''INSERT INTO Type_capteur (unite_mesure)
+                   VALUES (?)'''
+        c.execute(query, (unite_mesure,))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+    return RedirectResponse(url="/config", status_code=303)
 
 @app.get("/etatcapteur", response_class=HTMLResponse)
 async def read_etat_capteur(request: Request):
-    temperature_data = get_capteur_data(1)
-    humidity_data = get_capteur_data(2)
+    #les deux capteurs que j'ai configurés et testés, il s'agit du dht11 branché sur un esp8266
+    #il est décomposé en deux capteurs, un pour la température et un pour l'humidité
+    temperature_data = get_capteur_data(9)
+    humidity_data = get_capteur_data(10)
     return templates.TemplateResponse("etat_capteur.html", {
         "request": request,
         "temperature_data": temperature_data,
@@ -102,7 +119,8 @@ async def read_config(request: Request):
     capteurs = get_capteurs()
     logements = get_logements()
     pieces = get_pieces_with_logement()
-    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces})
+    types_capteurs = get_types_capteurs()  
+    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces, "types_capteurs": types_capteurs})
 
 
 @app.get("/consommation", response_class=HTMLResponse)
@@ -142,7 +160,7 @@ async def afficher_economie(
         "logements": logements,
         "selected_logement": selected_id,
         "has_factures": bool(factures),
-        "zip": zip  # Add zip function to template context
+        "zip": zip  
     })
 
 @app.get("/get_pieces")
@@ -154,6 +172,7 @@ async def get_pieces(logement_id: int = Query(...)):
     pieces = c.fetchall()
     conn.close()
     return JSONResponse(content={"pieces": [dict(piece) for piece in pieces]})
+
 
 @app.post("/ajouter_piece")
 async def ajouter_piece(nom_piece: str = Form(...), x: float = Form(...), y: float = Form(...), z: float = Form(...), logement: int = Form(...)):
@@ -248,6 +267,21 @@ async def supprimer_capteur(capteur: int = Form(...)):
     c = conn.cursor()
     try:
         c.execute("DELETE FROM Capteur WHERE id_capteur = ?", (capteur,))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+    return RedirectResponse(url="/config", status_code=303)
+
+@app.post("/supprimer_type_capteur")
+async def supprimer_type_capteur(type_capteur: str = Form(...)):
+    print(f"Suppression du type de capteur avec id: {type_capteur}")
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    try:
+        c.execute("DELETE FROM Type_capteur WHERE id_type = ?", (type_capteur,))
         conn.commit()
     except sqlite3.Error as e:
         conn.rollback()
