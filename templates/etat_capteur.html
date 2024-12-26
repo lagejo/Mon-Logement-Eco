@@ -2,72 +2,146 @@
 
 {% block title %}État des Capteurs{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="/static/css/styles.css">
+{% endblock %}
+
 {% block content %}
 <h1>État des Capteurs</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <div id="temperature_chart" style="width: 100%; height: 400px;"></div>
-    </div>
-    <div class="col-md-6">
-        <div id="humidity_chart" style="width: 100%; height: 400px;"></div>
-    </div>
+<h2>Capteurs Actifs</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Unité de Mesure</th>
+            <th>Pièce - Logement</th>
+            <th>Date d'Insertion</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for capteur in active_capteurs %}
+        <tr>
+            <td>{{ capteur.ref_commerciale }}</td>
+            <td>{{ capteur.port_communication }}</td>
+            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.logement_adresse }} - {{ capteur.piece_nom }}</td>
+            <td>{{ capteur.date_insert }}</td>
+            <td><button class="btn btn-primary" onclick="loadGraph({{ capteur.id_capteur }})">Afficher Mesures</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="graphContainer" style="display:none;">
+    <h2>Graphique des Mesures</h2>
+    <canvas id="graphMesures" style="width: 100%; height: 60vh;"></canvas> <!-- Utiliser des pourcentages pour la taille -->
 </div>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawCharts);
+<h2>Capteurs Inactifs</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Unité de Mesure</th>
+            <th>Pièce - Logement</th>
+            <th>Date d'Insertion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for capteur in inactive_capteurs %}
+        <tr>
+            <td>{{ capteur.ref_commerciale }}</td>
+            <td>{{ capteur.port_communication }}</td>
+            <td>{{ capteur.unite_mesure }}</td>
+            <td>{{ capteur.logement_adresse }} - {{ capteur.piece_nom }}</td>
+            <td>{{ capteur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-    function drawCharts() {
-        drawTemperatureChart();
-        drawHumidityChart();
-    }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0"></script>
+<script>
+let myChart = null;
 
-    function drawTemperatureChart() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'Date');
-        data.addColumn('number', 'Temperature');
+function loadGraph(capteurId) {
+    fetch(`/get_mesures?capteur_id=${capteurId}`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById("graphMesures").getContext("2d");
 
-        data.addRows([
-            {% for row in temperature_data %}
-                [new Date('{{ row["date_insert"] }}'), {{ row["valeur"] }}],
-            {% endfor %}
-        ]);
+            // Détruire l'ancien graphique s'il existe
+            if (myChart !== null) {
+                myChart.destroy();
+            }
 
-        var options = {
-            title: 'Temperature/Temps',
-            curveType: 'function',
-            legend: { position: 'bottom' },
-            colors: ['#FF0000'], // Couleur rouge pour la courbe de température
-            height: 400
-        };
+            // Vérifiez que les dates sont au format ISO 8601 ou un format reconnu par Chart.js
+            const dates = data.dates.map(date => new Date(date));
 
-        var chart = new google.visualization.LineChart(document.getElementById('temperature_chart'));
-        chart.draw(data, options);
-    }
-
-    function drawHumidityChart() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'Date');
-        data.addColumn('number', 'Humidity');
-
-        data.addRows([
-            {% for row in humidity_data %}
-                [new Date('{{ row["date_insert"] }}'), {{ row["valeur"] }}],
-            {% endfor %}
-        ]);
-
-        var options = {
-            title: 'Humidité/Temps',
-            curveType: 'function',
-            legend: { position: 'bottom' },
-            colors: ['#0000FF'], // Couleur bleue pour la courbe d'humidité
-            height: 400
-        };
-
-        var chart = new google.visualization.LineChart(document.getElementById('humidity_chart'));
-        chart.draw(data, options);
-    }
+            myChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: "Mesures",
+                        data: data.valeurs,
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false, 
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: "time",
+                            time: {
+                                unit: "day",
+                                tooltipFormat: 'DD T'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: data.unite_mesure
+                            }
+                        }
+                    }
+                }
+            });
+            document.getElementById("graphContainer").style.display = "block";
+        });
+}
 </script>
+
+<style>
+    #graphContainer {
+        margin: auto;
+    }
+    
+    #graphMesures {
+        /* prompt chat gpt : comment forcer le redimensionnement d'un bloc en css ?*/
+        height: 40vh !important; 
+    }
+
+    .table {
+        width: 80%;
+        margin: auto;
+    }
+    
+
+</style>
+
 {% endblock %}

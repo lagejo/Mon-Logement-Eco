@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+import datetime
 import logging
 import requests
 
@@ -63,6 +63,48 @@ def get_types_capteurs():
     types_capteurs = c.fetchall()
     conn.close()
     return types_capteurs
+
+def get_active_capteurs():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    three_months_ago = datetime.datetime.now() - datetime.timedelta(days=90)
+    c.execute("""
+        SELECT c.*, t.id_type, t.unite_mesure, l.adresse AS logement_adresse, p.nom AS piece_nom
+        FROM Capteur c
+        JOIN Type_capteur t ON c.id_type = t.id_type
+        JOIN Piece p ON c.id_piece = p.id_piece
+        JOIN Logement l ON p.id_loge = l.id_loge
+        WHERE c.id_capteur IN (
+            SELECT DISTINCT id_capteur
+            FROM Mesure
+            WHERE date_insert >= ?
+        )
+    """, (three_months_ago,))
+    active_capteurs = c.fetchall()
+    conn.close()
+    return active_capteurs
+
+def get_inactive_capteurs():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    three_months_ago = datetime.datetime.now() - datetime.timedelta(days=90)
+    c.execute("""
+        SELECT c.*, t.id_type, t.unite_mesure, l.adresse AS logement_adresse, p.nom AS piece_nom
+        FROM Capteur c
+        JOIN Type_capteur t ON c.id_type = t.id_type
+        JOIN Piece p ON c.id_piece = p.id_piece
+        JOIN Logement l ON p.id_loge = l.id_loge
+        WHERE c.id_capteur NOT IN (
+            SELECT DISTINCT id_capteur
+            FROM Mesure
+            WHERE date_insert >= ?
+        )
+    """, (three_months_ago,))
+    inactive_capteurs = c.fetchall()
+    conn.close()
+    return inactive_capteurs
 
 def get_pieces_with_logement():
     conn = sqlite3.connect('logement.db')

@@ -63,12 +63,22 @@ async def ajouter_type_capteur(unite_mesure: str = Form(...)):
 async def read_etat_capteur(request: Request):
     #les deux capteurs que j'ai configurés et testés, il s'agit du dht11 branché sur un esp8266
     #il est décomposé en deux capteurs, un pour la température et un pour l'humidité
-    temperature_data = get_capteur_data(9)
-    humidity_data = get_capteur_data(10)
+    # temperature_data = get_capteur_data(2)
+    # humidity_data = get_capteur_data(1)
+    capteurs = get_capteurs()
+    logements = get_logements()
+    pieces = get_pieces_with_logement()
+    types_capteurs = get_types_capteurs()
+    active_capteurs = get_active_capteurs() 
+    inactive_capteurs = get_inactive_capteurs()  # Récupérer les capteurs inactifs
     return templates.TemplateResponse("etat_capteur.html", {
         "request": request,
-        "temperature_data": temperature_data,
-        "humidity_data": humidity_data
+        "capteurs": capteurs,
+        "logements": logements,
+        "pieces": pieces,
+        "types_capteurs": types_capteurs,
+        "active_capteurs": active_capteurs,
+        "inactive_capteurs": inactive_capteurs
     })
 
 @app.get("/", response_class=HTMLResponse)
@@ -289,6 +299,26 @@ async def supprimer_type_capteur(type_capteur: str = Form(...)):
     finally:
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
+
+@app.get("/get_mesures")
+async def get_mesures(capteur_id: int):
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("""
+        SELECT m.valeur, m.date_insert, t.unite_mesure
+        FROM Mesure m
+        JOIN Capteur c ON m.id_capteur = c.id_capteur
+        JOIN Type_capteur t ON c.id_type = t.id_type
+        WHERE m.id_capteur = ?
+        ORDER BY m.date_insert
+    """, (capteur_id,))
+    rows = c.fetchall()
+    conn.close()
+    dates = [row['date_insert'] for row in rows]
+    valeurs = [row['valeur'] for row in rows]
+    unite_mesure = rows[0]['unite_mesure'] if rows else ''
+    return {"dates": dates, "valeurs": valeurs, "unite_mesure": unite_mesure}
 
 
 if __name__ == "__main__":
