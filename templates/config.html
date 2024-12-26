@@ -134,7 +134,7 @@
         <select id="capteur" name="capteur" required>
             <option value="">Sélectionner un capteur</option>
             {% for capteur in capteurs %}
-                <option value="{{ capteur.id_capteur }}">{{ capteur.ref_commerciale }}</option>
+                <option value="{{ capteur.id_capteur }}">{{ capteur.ref_commerciale }} - {{ capteur.type_capteur_nom}}</option>
             {% endfor %}
         </select>
         <button type="submit" class="btn btn-danger">Supprimer Capteur</button>

@@ -16,16 +16,50 @@
     </select>
 </form>
 
+<button class="menu-button" onclick="showForm('factureForm')">Ajouter une Facture</button>
+
+<div id="factureForm" style="display:none;">
+    <form action="/ajouter_facture" method="post">
+        <label for="type_facture">Type de facture:</label>
+        <input type="text" id="type_facture" name="type_facture" required><br>
+
+        <label for="montant">Montant:</label>
+        <input type="number" id="montant" name="montant" step="any" required><br>
+
+        <label for="valeur_conso">Valeur consommée:</label>
+        <input type="number" id="valeur_conso" name="valeur_conso" step="any" required><br>
+
+        <label for="date_fact">Date facture:</label>
+        <input type="date" id="date_fact" name="date_fact" required><br>
+
+        <label for="logement">Logement:</label>
+        <select id="logement" name="id_loge" required>
+            {% for logement in logements %}
+                <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Ajouter la facture">
+    </form>
+</div>
+
 {% if selected_logement %}
     {% if has_factures %}
         <h2>Montant total: {{ total_factures }} €</h2>
         <div id="piechart" style="width: 100%; height: 500px;"></div>
+        <div id="evolutionChart" style="width: 100%; height: 500px;"></div>
+        
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script type="text/javascript">
             google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
+            google.charts.setOnLoadCallback(drawCharts);
 
-            function drawChart() {
+            function drawCharts() {
+                drawPieChart();
+                drawEvolutionChart();
+            }
+
+            function drawPieChart() {
                 var data = google.visualization.arrayToDataTable([
                     ['Type', 'Montant'],
                     {% for label, value in zip(labels, data) %}
@@ -41,16 +75,72 @@
                 formatter.format(data, 1);
 
                 var options = {
-                    title: 'Graphe des factures',
+                    title: 'Répartition des factures',
                     width: '100%',
                     height: 500,
+                    pieHole: 0.4,
                     tooltip: {
                         showColorCode: true,
                         text: 'value'
-                    }
+                    },
+                    legend: { position: 'right' }
                 };
 
                 var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                chart.draw(data, options);
+            }
+
+            function drawEvolutionChart() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('date', 'Date');
+                {% for type in types_facture %}
+                data.addColumn('number', '{{ type }}');
+                {% endfor %}
+
+                // Debug dates
+                console.log("Dates from server:", {{ dates_uniques|tojson }});
+
+                var rows = [];
+                {% for date in dates_uniques %}
+                    // Split date string into components
+                    var dateParts = '{{ date }}'.split('-');
+                    var year = parseInt(dateParts[0]);
+                    var month = parseInt(dateParts[1]) - 1; // JavaScript months are 0-based
+                    var day = parseInt(dateParts[2]);
+                    
+                    // Create date object with correct values
+                    var dateObj = new Date(year, month, day);
+                    console.log("Processing date:", dateObj);
+                    
+                    rows.push([
+                        dateObj,
+                        {% for type in types_facture %}
+                            {{ valeurs_par_date_type[date].get(type, 0)|default(0) }},
+                        {% endfor %}
+                    ]);
+                {% endfor %}
+
+                data.addRows(rows);
+
+                var options = {
+                    title: 'Evolution des consommations',
+                    width: '100%',
+                    height: 500,
+                    curveType: 'function',
+                    legend: { position: 'right' },
+                    hAxis: {
+                        title: 'Date',
+                        format: 'dd/MM/yyyy',
+                        gridlines: { count: 10 },
+                        slantedText: true
+                    },
+                    vAxis: {
+                        title: 'Consommation',
+                        gridlines: { count: 10 }
+                    }
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('evolutionChart'));
                 chart.draw(data, options);
             }
         </script>
@@ -58,4 +148,17 @@
         <p>Aucune facture trouvée pour ce logement.</p>
     {% endif %}
 {% endif %}
+
+<style>
+    .menu-button {
+        background-color: #006400; /* Dark green */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: box-shadow 0.3s ease;
+    }
+</style>
+
 {% endblock %}

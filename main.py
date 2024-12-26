@@ -133,7 +133,7 @@ async def read_config(request: Request):
     return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces, "types_capteurs": types_capteurs})
 
 
-@app.get("/consommation", response_class=HTMLResponse)
+@app.get("/consommation")
 async def afficher_economie(
     request: Request,
     logement_id: Optional[str] = None
@@ -150,17 +150,50 @@ async def afficher_economie(
     if selected_id:
         factures = get_factures(selected_id)
     
+    # Données pour le graphique camembert
+    facture_dict = defaultdict(float)
+    # Données pour le graphique d'évolution
+    types_facture = set()
+    dates_uniques = set()
+    valeurs_par_date_type = {}
+    
     if factures:
-        facture_dict = defaultdict(float)
         for facture in factures:
+            # Pour le camembert
             facture_dict[facture['type_facture']] += facture['montant']
+            
+            # Pour le graphique d'évolution
+            types_facture.add(facture['type_facture'])
+            
+            # Handle date
+            date_facture = facture.get('date_facture')
+            if date_facture:
+                date_str = date_facture  # Assuming date_facture is already in 'YYYY-MM-DD' format
+                dates_uniques.add(date_str)
+                
+                if date_str not in valeurs_par_date_type:
+                    valeurs_par_date_type[date_str] = {}
+                valeurs_par_date_type[date_str][facture['type_facture']] = facture.get('montant', 0)
         
         labels = list(facture_dict.keys())
         data = list(facture_dict.values())
         total_factures = sum(data)
+        
+        # Trier les dates et types pour l'affichage
+        dates_uniques = sorted(list(dates_uniques))
+        types_facture = sorted(list(types_facture))
     else:
         labels = []
         data = []
+        dates_uniques = []
+        types_facture = []
+
+    # Debug output
+    print("Labels:", labels)
+    print("Data:", data)
+    print("Types Facture:", types_facture)
+    print("Dates Uniques:", dates_uniques)
+    print("Valeurs par Date/Type:", valeurs_par_date_type)
 
     return templates.TemplateResponse("conso.html", {
         "request": request,
@@ -170,7 +203,10 @@ async def afficher_economie(
         "logements": logements,
         "selected_logement": selected_id,
         "has_factures": bool(factures),
-        "zip": zip  
+        "types_facture": types_facture,
+        "dates_uniques": dates_uniques,
+        "valeurs_par_date_type": valeurs_par_date_type,
+        "zip": zip
     })
 
 @app.get("/get_pieces")
@@ -238,7 +274,7 @@ async def add_facture(
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
-    return RedirectResponse(url="/economie", status_code=303)
+    return RedirectResponse(url="/consommation", status_code=303)
 
 @app.post("/supprimer_logement")
 async def supprimer_logement(logement: int = Form(...)):

@@ -110,7 +110,7 @@ function loadGraph(factureTypeId) {
                 const lastTwoMontants = data.montants.slice(-2);
                 const difference = lastTwoMontants[1] - lastTwoMontants[0];
 
-                document.getElementById("barChartTitle").textContent = `Économies réalisées depuis ${lastTwoDates[0]}`;
+                document.getElementById("barChartTitle").textContent = `Économies réalisées depuis le ${lastTwoDates[0]}`;
                 document.getElementById("barChartTitle").style.display = "block";
 
                 const barCtx = document.getElementById("barChart").getContext("2d");
@@ -121,8 +121,8 @@ function loadGraph(factureTypeId) {
                         datasets: [{
                             label: "Différence",
                             data: [difference],
-                            backgroundColor: difference >= 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)",
-                            borderColor: difference >= 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)",
+                            backgroundColor: difference >= 0 ? "rgb(78, 164, 68)" : "rgba(255, 99, 132, 1)",
+                            borderColor: difference >= 0 ? "rgb(78, 164, 68)" : "rgba(255, 99, 132, 1)",
                             borderWidth: 1
                         }]
                     },

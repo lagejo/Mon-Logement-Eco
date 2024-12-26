@@ -6,33 +6,6 @@
 <h1>Economies réalisées</h1>
 
 
-<button class="menu-button" onclick="showForm('factureForm')">Ajouter une Facture</button>
-
-<div id="factureForm" style="display:none;">
-    <form action="/ajouter_facture" method="post">
-        <label for="type_facture">Type de facture:</label>
-        <input type="text" id="type_facture" name="type_facture" required><br>
-
-        <label for="montant">Montant:</label>
-        <input type="number" id="montant" name="montant" step="any" required><br>
-
-        <label for="valeur_conso">Valeur consommée:</label>
-        <input type="number" id="valeur_conso" name="valeur_conso" step="any" required><br>
-
-        <label for="date_fact">Date facture:</label>
-        <input type="date" id="date_fact" name="date_fact" required><br>
-
-        <label for="logement">Logement:</label>
-        <select id="logement" name="id_loge" required>
-            {% for logement in logements %}
-                <option value="{{ logement.id_loge }}">{{ logement.adresse }}</option>
-            {% endfor %}
-        </select><br>
-
-        <input type="submit" value="Ajouter la facture">
-    </form>
-</div>
-
 <div class="form-group">
     <label for="logementSelect">Sélectionner un logement:</label>
     <select class="form-control" id="logementSelect" name="logementSelect" onchange="loadFactureTypes(this.value)">
@@ -70,16 +43,5 @@
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0"></script>
 
-<style>
-    .menu-button {
-        background-color: #006400; /* Dark green */
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: box-shadow 0.3s ease;
-    }
-</style>
 
 {% endblock %}

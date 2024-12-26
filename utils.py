@@ -22,14 +22,15 @@ def get_factures(logement_id=None):
     c = conn.cursor()
     
     if logement_id:
-        c.execute("SELECT type_facture, montant FROM Facture WHERE id_loge = ?", (logement_id,))
+        c.execute("SELECT type_facture, date_fact, montant FROM Facture WHERE id_loge = ?", (logement_id,))
     else:
-        c.execute("SELECT type_facture, montant FROM Facture")
+        c.execute("SELECT type_facture, date_fact, montant FROM Facture")
         
     rows = c.fetchall()
     conn.close()
     
-    return [{"type_facture": row[0], "montant": row[1]} for row in rows]
+    return [{"type_facture": row[0], "date_facture": row[1], "montant": row[2]} for row in rows]
+
 
 def get_capteur_data(id_capteur: int):
     conn = sqlite3.connect('logement.db')
