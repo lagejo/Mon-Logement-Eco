@@ -1,6 +1,6 @@
 <h2><b>Présentation de l'archive :</b></h2>
 
-Vous avez ici tous les fichiers permettant d'utiliser le site web Mon-Logement-Eco en local sur votre marchine.<br>
+Vous avez ici tous les fichiers permettant d'utiliser le site web Mon-Logement-Eco sur votre marchine.<br>
 Le framework web FastAPI a été utilisé pour réaliser l'interface web, le fichier <b>main.py</b> contient l'application FastAPI, les routes et les fonctions principales pour gérer les requêtes HTTP.
 
 <p>Dans le dossier templates, il y a les différentes pages du site :</p>
@@ -20,6 +20,6 @@ Afin ne pas surcharger le fichier main, quelques fonctions permettant l'acquisit
 
 <h2><b>Pour lancer Mon-Logement-Eco :</b></h2>
 Dépendances nécessaires : fastapi, unicorn, jinja2, pydantic.<br>
-Elles peuvent être installées simplement avec la commmande pip install fastapi uvicorn jinja2 pydantic.<br>
-Après téléchargement de l'archive, il suffit de lancer la commande : <mark>fastapi run main.py</mark> dans le dossier <b>Mon-logement-eco</b>.<br>
+Elles peuvent être installées simplement avec la commmande : pip install fastapi uvicorn jinja2 pydantic.<br>
+Après le téléchargement de l'archive, il suffit de lancer la commande : <mark>fastapi run main.py</mark> dans le dossier <b>Mon-logement-eco</b>.<br>
 Il faut ensuite se rendre à l'adresse <a href=http://127.0.0.1:8000/>http://127.0.0.1:8000/</a> en utilisant votre navigateur internet.
