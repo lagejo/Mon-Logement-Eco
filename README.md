@@ -13,8 +13,8 @@ Le framework web FastAPI a été utilisé pour réaliser l'interface web, le fic
 	<li><b>index.html</b> la lage d'accueil de l'application.</li>
 </ul>
 Le dossier static contient les feuilles de style CSS et les scripts JavaScript qui étaient trop longs pour être laissés dans les fichiers html, ainsi que les images/logo utilisés.
-Les fichiers <b>code_esp_actionneur.cpp</b> et <b>code_esp_capteur.cpp</b> contiennent les codes C++ utilisés pour utiliser un capteur/actionneur. 
-Ces codes sont conçus pour être implémentés dans un ESP8266 relié à une LED et à un caoteur de température et d'humidité, le dht11.
+Dans le dossier <b>capteurs-actionneurs</b> les fichiers <b>code_esp_actionneur.cpp</b> et <b>code_esp_capteur.cpp</b> contiennent les codes utilisés pour tester un capteur/actionneur. 
+Ces codes sont conçus pour être implémentés dans un ESP8266 relié à une LED et à un capteur de température et d'humidité, le dht11.
 La base de données utilisée est <b>logement.db</b>, elle a été au départ remplie avec le code contenu dans <b>logement.sql</b>.<br>
 Afin ne pas surcharger le fichier main, quelques fonctions permettant l'acquisition ou l'écriture d'éléments de la base de données ont été placées dans <b>utils.py</b>.
 
