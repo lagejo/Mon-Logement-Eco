@@ -8,6 +8,24 @@
     <link rel="stylesheet" href="/static/css/styles.css">
     <!-- Icone: https://icon-icons.com/fr/icone/Immobilier-maison-maison-immeuble-propri%C3%A9t%C3%A9-les/81428 -->
     <link rel="icon" href="/static/logo.ico" type="image/x-icon">
+    <style>
+        body {
+            /* source image : https://img-ccmbg-1.lefigaro.fr/pdk4wDIBzrz3jOB0o39tiPJqa9k=/600x/smart/7426850cfbb542b3a9d764d68bd1597a/ccmcms-figaroimmobilier/34735738.jpg */
+            background: url('/static/fond.webp') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8); 
+            z-index: -1;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,9 +36,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Acceuil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
                     <li class="nav-item"><a class="nav-link" href="/consommation">Consommation</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/etatcapteur">Etat des capteurs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/etatcapteur">Capteurs/Actionneurs</a></li>
                     <li class="nav-item"><a class="nav-link" href="/config">Configuration</a></li>
                     <li class="nav-item"><a class="nav-link" href="/economie">Economie</a></li>
                 </ul>

@@ -4,10 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import sqlite3
-from datetime import datetime
 from collections import defaultdict
 from typing import Optional
 from utils import *
+from datetime import datetime
+
 
 app = FastAPI()
 
@@ -43,6 +44,23 @@ async def add_capteur(ref_commerciale: str = Form(...), port_communication: str 
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
 
+@app.post("/add_actionneur")
+async def add_capteur(ref_commerciale: str = Form(...), port_communication: str = Form(...), id_type: int = Form(...), piece: int = Form(...)):
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    date_insert = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    try:
+        c.execute("INSERT INTO Actionneur (ref_commerciale, port_communication, date_insert, id_type, id_piece) VALUES (?, ?, ?, ?, ?)",
+                  (ref_commerciale, port_communication, date_insert, id_type, piece))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+    return RedirectResponse(url="/config", status_code=303)
+
 @app.post("/ajouter_type_capteur")
 async def ajouter_type_capteur(unite_mesure: str = Form(...)):
     conn = sqlite3.connect('logement.db')
@@ -70,7 +88,8 @@ async def read_etat_capteur(request: Request):
     pieces = get_pieces_with_logement()
     types_capteurs = get_types_capteurs()
     active_capteurs = get_active_capteurs() 
-    inactive_capteurs = get_inactive_capteurs()  # Récupérer les capteurs inactifs
+    inactive_capteurs = get_inactive_capteurs() 
+    actionneurs = get_actionneurs()
     return templates.TemplateResponse("etat_capteur.html", {
         "request": request,
         "capteurs": capteurs,
@@ -78,7 +97,8 @@ async def read_etat_capteur(request: Request):
         "pieces": pieces,
         "types_capteurs": types_capteurs,
         "active_capteurs": active_capteurs,
-        "inactive_capteurs": inactive_capteurs
+        "inactive_capteurs": inactive_capteurs,
+        "actionneurs": actionneurs
     })
 
 @app.get("/", response_class=HTMLResponse)
@@ -108,14 +128,16 @@ async def get_facture_types(logement_id: int):
     return {"types": types}
 
 @app.get("/get_facturesjson")
-async def get_facturesjson(facture_type_id: str):
+async def get_facturesjson(facture_type_id: str, logement_id: str):
     conn = sqlite3.connect('logement.db')
     c = conn.cursor()
     c.execute("""
         SELECT montant, date_fact
         FROM Facture
         WHERE type_facture = ?
-    """, (facture_type_id,))
+        AND id_loge = ?
+        ORDER BY date_fact DESC LIMIT 5
+    """, (facture_type_id,logement_id))
     rows = c.fetchall()
     conn.close()
     
@@ -130,7 +152,8 @@ async def read_config(request: Request):
     logements = get_logements()
     pieces = get_pieces_with_logement()
     types_capteurs = get_types_capteurs()  
-    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces, "types_capteurs": types_capteurs})
+    actionneurs = get_actionneurs()
+    return templates.TemplateResponse("config.html", {"request": request, "capteurs": capteurs, "logements": logements, "pieces": pieces, "types_capteurs": types_capteurs, "actionneurs": actionneurs})
 
 
 @app.get("/consommation")
@@ -321,6 +344,21 @@ async def supprimer_capteur(capteur: int = Form(...)):
         conn.close()
     return RedirectResponse(url="/config", status_code=303)
 
+@app.post("/supprimer_actionneur")
+async def supprimer_capteur(actionneur: str = Form(...)):
+    print(f"Suppression de l'actionneur avec id: {actionneur}")
+    conn = sqlite3.connect('logement.db')
+    c = conn.cursor()
+    try:
+        c.execute("DELETE FROM Actionneur WHERE id_actionneur = ?", (actionneur,))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+    return RedirectResponse(url="/config", status_code=303)
+
 @app.post("/supprimer_type_capteur")
 async def supprimer_type_capteur(type_capteur: str = Form(...)):
     print(f"Suppression du type de capteur avec id: {type_capteur}")
@@ -355,6 +393,14 @@ async def get_mesures(capteur_id: int):
     valeurs = [row['valeur'] for row in rows]
     unite_mesure = rows[0]['unite_mesure'] if rows else ''
     return {"dates": dates, "valeurs": valeurs, "unite_mesure": unite_mesure}
+
+@app.post("/get-led_state")
+async def set_led_state(request: Request):
+    data = await request.json()
+    actionneur_id = data.get("actionneur_id")
+    led_state = data.get("led_state")
+
+    return JSONResponse(content={"message": "LED state updated successfully", "actionneur_id": actionneur_id, "led_state": led_state})
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}État des Capteurs{% endblock %}
+{% block title %}État des Capteurs/Actionneurs{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/styles.css">
 {% endblock %}
 
 {% block content %}
-<h1>État des Capteurs</h1>
+<h1>État des Capteurs/Actionneurs</h1>
 
 <h2>Capteurs Actifs</h2>
 <table class="table">
@@ -63,6 +63,32 @@
         {% endfor %}
     </tbody>
 </table>
+
+<h2>Actionneurs</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Pièce - Logement</th>
+            <th>Date d'Insertion</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for actionneur in actionneurs %}
+        <tr>
+            <td>{{ actionneur.ref_commerciale }}</td>
+            <td>{{ actionneur.port_communication }}</td>
+            <td>{{ actionneur.logement_adresse }} - {{ actionneur.piece_nom }}</td>
+            <td>{{ actionneur.date_insert }}</td>
+            <td><button class="btn btn-primary" onclick="allumerLed('{{ actionneur.id }}')">Allumer LED</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/economie" class="btn btn-success" style="margin-top: 20px;">Voir les économies réalisées</a>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
@@ -123,6 +149,22 @@ function loadGraph(capteurId) {
             });
             document.getElementById("graphContainer").style.display = "block";
         });
+}
+function allumerLed(actionneurId) {
+    fetch('/get-led_state', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ actionneur_id: actionneurId, led_state: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('LED allumée:', data);
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+    });
 }
 </script>
 

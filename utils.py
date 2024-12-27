@@ -56,6 +56,20 @@ def get_capteurs():
     conn.close()
     return capteurs
 
+def get_actionneurs():
+    conn = sqlite3.connect('logement.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("""
+        SELECT Actionneur.*, Piece.nom AS piece_nom, Logement.adresse AS logement_adresse
+        FROM Actionneur
+        JOIN Piece ON Actionneur.id_piece = Piece.id_piece
+        JOIN Logement ON Piece.id_loge = Logement.id_loge
+    """)
+    capteurs = c.fetchall()
+    conn.close()
+    return capteurs
+
 def get_types_capteurs():
     conn = sqlite3.connect('logement.db')
     conn.row_factory = sqlite3.Row

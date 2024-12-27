@@ -1,4 +1,7 @@
+let selectedLogementId = null;
+
 async function loadFactureTypes(logementId) {
+    selectedLogementId = logementId;
     console.log("Loading facture types for logementId:", logementId);
     if (!logementId) {
         document.getElementById('factureTypeContainer').style.display = 'none';
@@ -60,7 +63,7 @@ function loadGraph(factureTypeId) {
         return;
     }
 
-    fetch(`/get_facturesjson?facture_type_id=${factureTypeId}`)
+    fetch(`/get_facturesjson?facture_type_id=${factureTypeId}&logement_id=${selectedLogementId}`)
         .then(response => response.json())
         .then(data => {
             // On détruit l'ancien graphique s’il existe
@@ -108,7 +111,11 @@ function loadGraph(factureTypeId) {
                 document.getElementById("comparisonMsg").style.display = "none";
                 const lastTwoDates = data.dates.slice(-2);
                 const lastTwoMontants = data.montants.slice(-2);
-                const difference = lastTwoMontants[1] - lastTwoMontants[0];
+                
+                // Ensure the values are parsed as floats for accurate calculation
+                const montant1 = parseFloat(lastTwoMontants[0]);
+                const montant2 = parseFloat(lastTwoMontants[1]);
+                const difference = montant2 - montant1;
 
                 document.getElementById("barChartTitle").textContent = `Économies réalisées depuis le ${lastTwoDates[0]}`;
                 document.getElementById("barChartTitle").style.display = "block";

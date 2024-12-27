@@ -59,10 +59,19 @@ CREATE TABLE Capteur (
 CREATE TABLE Mesure (
     id_mesure INTEGER PRIMARY KEY AUTOINCREMENT,   
     valeur REAL,
-    date_insert TEXT,  -- Correction de 'date_inster' en 'date_insert'
+    date_insert TEXT,  
     id_capteur INTEGER,                             
     FOREIGN KEY (id_capteur) REFERENCES Capteur(id_capteur)  
 );
+
+--Ajout de la table Actionneur pour rejouter une fonctionnalité au site
+CREATE TABLE Actionneur (
+        id_actionneur INTEGER PRIMARY KEY AUTOINCREMENT, 
+        id_piece INTEGER, 
+        ref_commerciale TEXT, 
+        port_communication INTEGER, 
+        date_insert TEXT, 
+        id_type INTEGER); 
 
 -- Activer les clés étrangères si nécessaire (important dans certains environnements SQLite)
 PRAGMA foreign_keys = ON;

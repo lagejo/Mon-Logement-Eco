@@ -3,8 +3,12 @@
 {% block title %}Acceuil{% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">Bienvenue dans votre site de gestion !</h1>
+<div class="jumbotron custom-jumbotron">
+    <h1 class="display-4">Bienvenue sur Mon Logement Eco !</h1>
+    <p class="lead">Gérez vos capteurs et actionneurs pour un logement plus éco-responsable.</p>
+    <hr class="my-4">
+    <p>Utilisez les outils disponibles pour suivre et optimiser votre consommation énergétique.</p>
+    <a class="btn btn-primary btn-lg" href="/config" role="button">Configurer</a>
 </div>
 <h2>Prévisions Météo</h2>
 <div id="weather-forecast">
@@ -30,6 +34,11 @@
         margin: 5px;
         display: inline-block;
         text-align: center;
+    }
+    .custom-jumbotron {
+        background-color: rgba(212, 237, 218, 0.6); 
+        padding: 2rem 1rem;
+        border-radius: 0.3rem;
     }
 </style>
 

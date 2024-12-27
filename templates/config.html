@@ -7,6 +7,7 @@
 
 <div class="menu">
     <button class="menu-button" onclick="showForm('capteurForm')">Ajouter un Capteur</button>
+    <button class="menu-button" onclick="showForm('actionneurForm')">Ajouter un Actionneur</button>
     <button class="menu-button" onclick="showForm('typeForm')">Ajouter un type de Capteur</button>
     <button class="menu-button" onclick="showForm('pieceForm')">Ajouter une Pièce</button>
     <button class="menu-button" onclick="showForm('logementForm')">Ajouter un Logement</button>
@@ -48,6 +49,34 @@
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Ajouter Capteur</button>
+    </form>
+</div>
+
+<div id="actionneurForm" class="form-container" style="display:none;">
+    <h2>Ajouter un Actionneur</h2>
+    <form action="/add_actionneur" method="post">
+        <div class="form-group">
+            <label for="piece">Pièce</label>
+            <select id="piece" name="piece" required>
+                <option value="">Sélectionner une pièce</option>
+                {% for piece in pieces %}
+                    <option value="{{ piece.id_piece }}">{{ piece.nom }} - {{ piece.logement_adresse }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="ref_commerciale">Référence Commerciale</label>
+            <input type="text" class="form-control" id="ref_commerciale" name="ref_commerciale" required>
+        </div>
+        <div class="form-group">
+            <label for="port_communication">Port de Communication</label>
+            <input type="text" class="form-control" id="port_communication" name="port_communication" required>
+        </div>
+        <div class="form-group">
+            <label for="id_type">Type d'actionneur</label>
+            <input type="text" class="form-control" id="id_type" name="id_type" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter Actionneur</button>
     </form>
 </div>
 
@@ -128,6 +157,16 @@
             {% endfor %}
         </select>
         <button type="submit" class="btn btn-danger">Supprimer Pièce</button>
+    </form>
+    <form action="/supprimer_actionneur" method="post">
+        <label for="actionneur">Actionneur :</label>
+        <select id="actionneur" name="actionneur" required>
+            <option value="">Sélectionner un actionneur</option>
+            {% for actionneur in actionneurs %}
+                <option value="{{ actionneur.id_actionneur }}">{{ actionneur.ref_commerciale }} - {{ actionneur.piece_nom}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Supprimer Actionneur</button>
     </form>
     <form action="/supprimer_capteur" method="post">
         <label for="capteur">Capteur:</label>
@@ -236,6 +275,30 @@
         {% endfor %}
     </tbody>
 </table>
+
+<h2>Actionneurs</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Référence Commerciale</th>
+            <th>Port de Communication</th>
+            <th>Logement - Pièce</th>
+            <th>Date d'Insertion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for actionneur in actionneurs %}
+        <tr>
+            <td>{{ actionneur.ref_commerciale }}</td>
+            <td>{{ actionneur.port_communication }}</td>
+            <td>{{ actionneur.logement_adresse }} - {{ actionneur.piece_nom }}</td>
+            <td>{{ actionneur.date_insert }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/etatcapteur" class="btn btn-success" style="margin-top: 20px;">Voir l'état des capteurs/actionneurs</a>
 
 <style>
 .menu {
