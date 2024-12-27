@@ -364,6 +364,7 @@
 //     document.getElementById(formId).style.display = 'block';
 // }
 
+// en partie inspiré de https://stackoverflow.com/questions/14220321/how-to-load-options-into-a-select-from-a-database
 function loadPieces(logementId) {
     fetch(`/get_pieces?logement_id=${logementId}`)
         .then(response => response.json())

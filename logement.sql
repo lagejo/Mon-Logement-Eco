@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS Capteur;
 DROP TABLE IF EXISTS Mesure;
 DROP TABLE IF EXISTS Type_capteur;
 
--- Création de la table Logement
+-- Création des tables
 CREATE TABLE Logement (
     id_loge INTEGER PRIMARY KEY AUTOINCREMENT,  
     adresse TEXT,                               
@@ -15,7 +15,6 @@ CREATE TABLE Logement (
     date_insert TEXT                             
 );
 
--- Création de la table Facture
 CREATE TABLE Facture (
     id_fact INTEGER PRIMARY KEY AUTOINCREMENT,   
     type_facture TEXT,                           
@@ -26,7 +25,6 @@ CREATE TABLE Facture (
     FOREIGN KEY (id_loge) REFERENCES Logement(id_loge) 
 );
 
--- Création de la table Piece
 CREATE TABLE Piece (
     id_piece INTEGER PRIMARY KEY AUTOINCREMENT,  
     nom TEXT,
@@ -37,13 +35,11 @@ CREATE TABLE Piece (
     FOREIGN KEY (id_loge) REFERENCES Logement(id_loge)  
 );
 
--- Création de la table Type_capteur
 CREATE TABLE Type_capteur (
     id_type INTEGER PRIMARY KEY AUTOINCREMENT, 
     unite_mesure TEXT
 );
 
--- Création de la table Capteur
 CREATE TABLE Capteur (
     id_capteur INTEGER PRIMARY KEY AUTOINCREMENT,   
     ref_commerciale TEXT,
@@ -55,7 +51,6 @@ CREATE TABLE Capteur (
     FOREIGN KEY (id_type) REFERENCES Type_capteur(id_type)  
 );
 
--- Création de la table Mesure
 CREATE TABLE Mesure (
     id_mesure INTEGER PRIMARY KEY AUTOINCREMENT,   
     valeur REAL,
@@ -95,16 +90,19 @@ VALUES ('Chambre',4, 2, 3, 1);
 
 -- Question 5 : Insertion dans la table Type_capteur
 INSERT INTO Type_capteur (id_type, unite_mesure)
-VALUES (1, 'mA');
+VALUES (1, 'Température (°C)');
 
 INSERT INTO Type_capteur (id_type,unite_mesure)
-VALUES (2, 'mV');
+VALUES (2, 'Humidité (%)');
 
 INSERT INTO Type_capteur (id_type, unite_mesure)
-VALUES (3, '°C');
+VALUES (3, 'Luminosité (lx)');
 
 INSERT INTO Type_capteur (id_type,unite_mesure)
-VALUES (4, 'm');
+VALUES (4, 'Volume Sonore (dB)');
+
+INSERT INTO Type_capteur (id_type,unite_mesure)
+VALUES (5, 'Actionneur LED');
 
 --Question 6 : 
 INSERT INTO Capteur (ref_commerciale, port_communication,date_insert,id_piece,id_type) --, id_piece ,
@@ -113,8 +111,10 @@ VALUES ('A3DR','12','13/07/2024',1,1);
 INSERT INTO Capteur (ref_commerciale, port_communication,date_insert,id_piece,id_type) --id_piece 
 VALUES ('A3DR','12','13/07/2024',2,1); 
 
---Question 7
+INSERT INTO Actionneur (id_piece,ref_commerciale, port_communication,date_insert,id_type) --id_piece 
+VALUES (1,'DVC3',3,'04/12/24',1); 
 
+--Question 7
 --deux mesures pour le premier capteur
 INSERT INTO Mesure (valeur, date_insert,id_capteur) --id_capteur
 VALUES (23.5, '2024-11-12',1);  
