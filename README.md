@@ -10,7 +10,7 @@ Le framework web FastAPI a été utilisé pour réaliser l'interface web, le fic
 	<li><b>config.html</b> la page pour la configuration des capteurs, actionneurs, types de capteurs, pièces, et logements,</li>
 	<li><b>etat_capteur.html</b> la page pour afficher l'état des capteurs et actionneurs,</li>
 	<li><b>eco.html</b> la page pour afficher les économies réalisées,</li>
-	<li><b>index.html</b> la lage d'accueil de l'application.</li>
+	<li><b>accueil.html</b> la lage d'accueil de l'application.</li>
 </ul>
 Le dossier static contient les feuilles de style CSS et les scripts JavaScript qui étaient trop longs pour être laissés dans les fichiers html, ainsi que les images/logo utilisés.
 Dans le dossier <b>capteurs-actionneurs</b> les fichiers <b>code_esp_actionneur.cpp</b> et <b>code_esp_capteur.cpp</b> contiennent les codes utilisés pour tester un capteur/actionneur. 

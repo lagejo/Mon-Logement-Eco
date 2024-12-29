@@ -104,7 +104,7 @@ async def read_etat_capteur(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     weather_forecast = get_meteo()
-    return templates.TemplateResponse("index.html", {"request": request, "weather_forecast": weather_forecast})
+    return templates.TemplateResponse("accueil.html", {"request": request, "weather_forecast": weather_forecast})
 
 @app.get("/economie", response_class=HTMLResponse)
 async def read_consommation(request: Request):
