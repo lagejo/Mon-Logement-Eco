@@ -16,7 +16,8 @@ Le dossier static contient les feuilles de style CSS et les scripts JavaScript q
 Dans le dossier <b>capteurs-actionneurs</b> les fichiers <b>code_esp_actionneur.cpp</b> et <b>code_esp_capteur.cpp</b> contiennent les codes utilisés pour tester un capteur/actionneur. 
 Ces codes sont conçus pour être implémentés dans un ESP8266 relié à une LED et à un capteur de température et d'humidité, le dht11.
 La base de données utilisée est <b>logement.db</b>, elle a été au départ remplie avec le code contenu dans <b>logement.sql</b>.<br>
-Afin ne pas surcharger le fichier main, quelques fonctions permettant l'acquisition ou l'écriture d'éléments de la base de données ont été placées dans <b>utils.py</b>.
+Afin ne pas surcharger le fichier main, quelques fonctions permettant l'acquisition ou l'écriture d'éléments de la base de données ont été placées dans <b>utils.py</b>.<br>
+Dans le dossier <b>CR-TP</b> il y a les comptes rendus de chaque partie du TP, ainsi que remplissage.py, un fichier python qui a servi dans un des TP mais que je n'ai pas réutilisé tel quel dans ce site.
 
 <h2><b>Pour lancer Mon-Logement-Eco :</b></h2>
 Dépendances nécessaires : fastapi, unicorn, jinja2, pydantic.<br>
