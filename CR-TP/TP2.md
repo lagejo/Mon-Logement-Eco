@@ -29,7 +29,7 @@ https://developers.google.com/chart/interactive/docs/gallery/piechart pour réal
 Pour obtenir les données de météo j'ai utilisé le site openweathermap, où j'ai pu créer un compte gratuitement.<br>
 Pour avoir accès aux données météo via une requête à l'url : https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric.
 J'ai choisi comme lattitude = 48.8566 et comme longitude = 2.3522, ce qui correspond aux coordonnées de Paris, voir de la ligne 156 à la ligne 167 de <b>utils.py</b>.<br>
-J'ai utilisé cette partie du TP dans la page d'accueil, j'utilise les données météo récupérées de la ligne 14 à la ligne 28 de <b>index.html</b>, ces données sont transmises via le GET de la racine du site, ligne 104 de <b>main.py</b>.
+J'ai utilisé cette partie du TP dans la page d'accueil, j'utilise les données météo récupérées de la ligne 14 à la ligne 28 de <b>accueil.html</b>, ces données sont transmises via le GET de la racine du site, ligne 104 de <b>main.py</b>.
 <h3>2.4 Exercice 4 : intégration</h3>
 Pour alimenter la base de données j'ai utilisés le capteur dht11 branché à un esp8266, j'ai effectué quelques mesures de température et d'humidité en salle de TP afin de vérifier le bon fonctionnement.<br>
 Le code contenu dans code_esp_capteur.cpp dans le dossier capteur-actionneurs envoie les données à l'adresse http://192.168.217.77:8000/capteur, 192.168.217.77 est l'adresse de mon ordinateur, l'ESP est connecté sur le même réseau. Puis le @app.post("/capteur") à la ligne 22 de <b>main.py</b> récupère ces données et les écrit dans la base de données via la fonction save_capteur_data(temperature, humidity) (ligne 6 de <b>utils.py</b>).<br><br>

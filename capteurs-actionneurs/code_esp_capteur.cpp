@@ -1,3 +1,5 @@
+//tutoriel suivi: https://randomnerdtutorials.com/esp8266-nodemcu-http-get-post-arduino/
+
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
